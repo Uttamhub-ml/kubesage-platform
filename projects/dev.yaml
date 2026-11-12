@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: dev
+  namespace: argocd
+spec:
+  description: Dev workloads - deploy repo only, *-dev namespaces only
+  sourceRepos:
+    - https://github.com/Uttamhub-ml/kubesage-deploy.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*-dev"
+  clusterResourceWhitelist: []        # no Namespaces, CRDs, ClusterRoles
+  namespaceResourceBlacklist:         # these belong to the platform team
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: rbac.authorization.k8s.io
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
