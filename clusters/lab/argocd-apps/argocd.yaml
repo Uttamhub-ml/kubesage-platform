@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: platform
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 10.18.0
+      helm:
+        releaseName: argocd
+        valueFiles:
+          - $values/clusters/lab/values/argocd.yaml
+    - repoURL: https://github.com/Uttamhub-ml/kubesage-platform.git
+      targetRevision: main
+      ref: values                   # lets the first source read $values/...
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false                  # Argo CD must never prune parts of itself
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true        # Argo CD CRDs are too large for client-side apply

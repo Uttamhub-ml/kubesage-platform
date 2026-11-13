@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: namespaces
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/Uttamhub-ml/kubesage-platform.git
+    targetRevision: main
+    path: clusters/lab/manifests/namespaces
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: false                  # deleting a namespace deletes EVERYTHING in it - never automatic
+      selfHeal: true

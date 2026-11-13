@@ -1,0 +1,33 @@
+# Argo CD - lab cluster (non-HA)
+dex:
+  enabled: false                 # no SSO in the lab; Entra ID OIDC on AKS (Phase 7)
+
+configs:
+  cm:
+    # Restore health checks for child Applications, so sync waves in the
+    # root app wait for each wave to be Healthy before starting the next.
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil then
+        if obj.status.health ~= nil then
+          hs.status = obj.status.health.status
+          if obj.status.health.message ~= nil then
+            hs.message = obj.status.health.message
+          end
+        end
+      end
+      return hs
+  rbac:
+    policy.default: role:readonly   # anyone logged in can view; only admin changes things
+
+controller:
+  metrics:
+    enabled: true        # metrics endpoints on; ServiceMonitors switched on after kps (step 7)
+server:
+  metrics:
+    enabled: true
+repoServer:
+  metrics:
+    enabled: true

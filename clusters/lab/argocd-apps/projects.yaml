@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: projects
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  project: default                  # 'platform' project doesn't exist yet - this app creates it
+  source:
+    repoURL: https://github.com/Uttamhub-ml/kubesage-platform.git
+    targetRevision: main
+    path: projects
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false                  # never auto-delete a project (apps would lose their rules)
+      selfHeal: true

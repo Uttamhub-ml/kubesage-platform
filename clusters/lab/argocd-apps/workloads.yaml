@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: workloads
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"      # after projects and namespaces exist
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/Uttamhub-ml/kubesage-deploy.git
+        revision: main
+        files:
+          - path: "apps/*/overlays/*/deploy-config.yaml"
+  template:
+    metadata:
+      name: '{{index .path.segments 1}}-{{.path.basename}}'     # e.g. payment-api-dev
+      labels:
+        kubesage.io/env: '{{.path.basename}}'
+    spec:
+      project: '{{.path.basename}}'                              # folder "dev" -> project "dev"
+      source:
+        repoURL: https://github.com/Uttamhub-ml/kubesage-deploy.git
+        targetRevision: main
+        path: '{{.path.path}}'                                   # apps/payment-api/overlays/dev
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.namespace}}'                              # from deploy-config.yaml
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
