@@ -3,4 +3,17 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: ai-sre-lab
 nodes:
   - role: control-plane
+    extraPortMappings:                 # laptop port → node port (NodePort)
+      - containerPort: 30443           # Argo CD UI
+        hostPort: 8443
+        listenAddress: "127.0.0.1"     # only your machine, not the network
+      - containerPort: 30300           # Grafana        (used in step 7)
+        hostPort: 3000
+        listenAddress: "127.0.0.1"
+      - containerPort: 30090           # Prometheus     (step 7)
+        hostPort: 9090
+        listenAddress: "127.0.0.1"
+      - containerPort: 30093           # Alertmanager   (step 7)
+        hostPort: 9093
+        listenAddress: "127.0.0.1"
   - role: worker

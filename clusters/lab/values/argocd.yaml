@@ -26,6 +26,9 @@ controller:
   metrics:
     enabled: true        # metrics endpoints on; ServiceMonitors switched on after kps (step 7)
 server:
+  service:
+    type: NodePort
+    nodePortHttps: 30443        # must match containerPort in kind-config
   metrics:
     enabled: true
 repoServer:
